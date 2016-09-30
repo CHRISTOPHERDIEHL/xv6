@@ -498,6 +498,9 @@ void signal_deliver(int signum)
 
 }
 
+//This function saves all the registers:
+
+
 // This function must clean up the signal frame from the stack and restore the volatile
 // registers (eax, ecx, edx).
 void signal_return(void)
