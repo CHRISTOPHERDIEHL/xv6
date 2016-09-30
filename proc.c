@@ -496,12 +496,6 @@ sighandler_t signal_register_handler(int signum, sighandler_t handler, void *tra
 void signal_deliver(int signum)
 {
 
-}
-
-//This function saves all the registers:
-void save_registers(int signum)
-{
-
   *((uint*) (proc->tf->esp - 4 )) = proc->tf->eip;
   *((uint*) (proc->tf->esp - 8 )) = proc->tf->eax;
   *((uint*) (proc->tf->esp - 12)) = proc->tf->ecx;
@@ -512,13 +506,20 @@ void save_registers(int signum)
   proc->tf->esp = proc->tf->esp - 24;
   proc->tf->eip = (uint) proc->signal_handlers[signum];
 
-
-
+  cprintf("Signal_deliver is finished\n");
 }
+
 
 // This function must clean up the signal frame from the stack and restore the volatile
 // registers (eax, ecx, edx).
 void signal_return(void)
 {
+  proc->tf->edx = *((uint*)(proc->tf->eip +8 ));
+  proc->tf->ecx = *((uint*)(proc->tf->eip +12));
+  proc->tf->eax = *((uint*)(proc->tf->eip +16));
+  proc->tf->eip = *((uint*)(proc->tf->eip +20));
+
+  proc->tf->esp = proc->tf->esp +24;
+  cprintf("Signal_return is finished\n");
 
 }

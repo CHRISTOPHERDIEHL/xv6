@@ -79,5 +79,4 @@ struct proc {
 
 void signal_deliver(int signum);
 void signal_return(void);
-void save_registers(int signum);
 sighandler_t signal_register_handler(int signum, sighandler_t handler, void *trampoline);

@@ -81,8 +81,7 @@ trap(struct trapframe *tf)
     if (proc->signal_handlers[SIGFPE] != 0) {
       cprintf("signal_handler found\n");
       signal_deliver(SIGFPE);
-
-
+      break;
     }
 
   //PAGEBREAK: 13
