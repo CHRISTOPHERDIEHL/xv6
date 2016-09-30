@@ -78,10 +78,11 @@ trap(struct trapframe *tf)
     lapiceoi();
     break;
   case T_DIVIDE:
-    cprintf("T_DIVIDE handled\n");
     if (proc->signal_handlers[SIGFPE] != 0) {
       cprintf("signal_handler found\n");
       signal_deliver(SIGFPE);
+
+
     }
 
   //PAGEBREAK: 13

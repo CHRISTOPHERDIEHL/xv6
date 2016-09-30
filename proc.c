@@ -510,7 +510,8 @@ void save_registers(int signum)
   *((uint*) (proc->tf->esp - 24)) = (uint)proc->signal_trampoline;
 
   proc->tf->esp = proc->tf->esp - 24;
-  
+  proc->tf->eip = (uint) proc->signal_handlers[signum];
+
 
 
 }
