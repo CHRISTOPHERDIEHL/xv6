@@ -79,7 +79,6 @@ trap(struct trapframe *tf)
     break;
   case T_DIVIDE:
     if (proc->signal_handlers[SIGFPE] != 0) {
-      cprintf("signal_handler found\n");
       signal_deliver(SIGFPE);
       break;
     }

@@ -506,7 +506,6 @@ void signal_deliver(int signum)
   proc->tf->esp = proc->tf->esp - 24;
   proc->tf->eip = (uint) proc->signal_handlers[signum];
 
-  cprintf("Signal_deliver is finished\n");
 }
 
 
@@ -514,12 +513,11 @@ void signal_deliver(int signum)
 // registers (eax, ecx, edx).
 void signal_return(void)
 {
-  proc->tf->edx = *((uint*)(proc->tf->eip +8 ));
-  proc->tf->ecx = *((uint*)(proc->tf->eip +12));
-  proc->tf->eax = *((uint*)(proc->tf->eip +16));
-  proc->tf->eip = *((uint*)(proc->tf->eip +20));
+  proc->tf->edx = *((uint*)(proc->tf->esp +8 ));
+  proc->tf->ecx = *((uint*)(proc->tf->esp +12));
+  proc->tf->eax = *((uint*)(proc->tf->esp +16));
+  proc->tf->eip = *((uint*)(proc->tf->esp +20));
 
   proc->tf->esp = proc->tf->esp +24;
-  cprintf("Signal_return is finished\n");
 
 }
