@@ -77,11 +77,11 @@ trap(struct trapframe *tf)
             cpunum(), tf->cs, tf->eip);
     lapiceoi();
     break;
-/*  case T_IRQ0 + T_DIVIDE:
+  case T_DIVIDE:
     if (proc->signal_handlers[SIGFPE] != 0) {
       signal_deliver(SIGFPE);
     }
-*/
+
   //PAGEBREAK: 13
   default:
     if(proc == 0 || (tf->cs&3) == 0){
