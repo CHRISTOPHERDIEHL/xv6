@@ -78,7 +78,9 @@ trap(struct trapframe *tf)
     lapiceoi();
     break;
   case T_DIVIDE:
+    cprintf("T_DIVIDE handled\n");
     if (proc->signal_handlers[SIGFPE] != 0) {
+      cprintf("signal_handler found\n");
       signal_deliver(SIGFPE);
     }
 
@@ -91,6 +93,7 @@ trap(struct trapframe *tf)
       panic("trap");
     }
     // In user space, assume process misbehaved.
+    //need to look and see if T_DIVIDE works up above or if it needs to be down here
     cprintf("pid %d %s: trap %d err %d on cpu %d "
             "eip 0x%x addr 0x%x--kill proc\n",
             proc->pid, proc->name, tf->trapno, tf->err, cpunum(), tf->eip,

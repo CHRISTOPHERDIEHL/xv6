@@ -1,0 +1,2 @@
+trapframe gives us stack for user space
+eip = instruction that caused error
