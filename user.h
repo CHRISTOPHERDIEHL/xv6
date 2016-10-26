@@ -25,6 +25,12 @@ int sleep(int);
 int uptime(void);
 int halt(void);
 
+//semeaphores
+int sem_init(int semId, int n);
+int sem_destroy(int semId);
+int sem_wait(int semId);
+int sem_signal(int semId);
+
 // ulib.c
 int stat(char*, struct stat*);
 char* strcpy(char*, char*);
