@@ -7,6 +7,17 @@
 #include "mmu.h"
 #include "proc.h"
 
+//semaphores
+
+int sem_init(int semId, int n)
+{return 0;}
+int sem_destroy(int semId)
+{return 0;}
+int sem_wait(int semId)
+{return 0;}
+int sem_signal(int semId)
+{return 0;}
+
 int
 sys_fork(void)
 {
@@ -61,7 +72,7 @@ sys_sleep(void)
 {
   int n;
   uint ticks0;
-  
+
   if(argint(0, &n) < 0)
     return -1;
   acquire(&tickslock);
@@ -83,7 +94,7 @@ int
 sys_uptime(void)
 {
   uint xticks;
-  
+
   acquire(&tickslock);
   xticks = ticks;
   release(&tickslock);

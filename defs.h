@@ -148,6 +148,12 @@ int             fetchint(uint, int*);
 int             fetchstr(uint, char**);
 void            syscall(void);
 
+//semaphores
+int sem_init(int semId, int n);
+int sem_destroy(int semId);
+int sem_wait(int semId);
+int sem_signal(int semId);
+
 // timer.c
 void            timerinit(void);
 

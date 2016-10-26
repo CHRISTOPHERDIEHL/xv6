@@ -25,7 +25,7 @@ int sleep(int);
 int uptime(void);
 int halt(void);
 
-//semeaphores
+//semaphores
 int sem_init(int semId, int n);
 int sem_destroy(int semId);
 int sem_wait(int semId);
