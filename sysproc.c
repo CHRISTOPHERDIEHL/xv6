@@ -9,13 +9,13 @@
 
 //semaphores
 
-int sem_init(int semId, int n)
+int sys_sem_init(int semId, int n)
 {return 0;}
-int sem_destroy(int semId)
+int sys_sem_destroy(int semId)
 {return 0;}
-int sem_wait(int semId)
+int sys_sem_wait(int semId)
 {return 0;}
-int sem_signal(int semId)
+int sys_sem_signal(int semId)
 {return 0;}
 
 int
