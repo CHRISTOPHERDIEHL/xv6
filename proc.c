@@ -17,7 +17,7 @@ struct semaphore
   int value;
   int active;
   struct spinlock lock;
-}
+};
 
 static struct proc *initproc;
 
