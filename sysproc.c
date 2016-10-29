@@ -9,8 +9,18 @@
 
 //semaphores
 
-int sys_sem_init(int semId, int n)
-{return 0;}
+int sys_sem_init(void)
+{
+  int semid,n;
+
+  if(argint(0, &semId) < 0)
+    return -1;
+
+  if(argint(1, &n) < 0)
+    return -1;
+    
+  return sem_init(semId,n);
+}
 int sys_sem_destroy(int semId)
 {return 0;}
 int sys_sem_wait(int semId)
