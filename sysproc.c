@@ -18,15 +18,38 @@ int sys_sem_init(void)
 
   if(argint(1, &n) < 0)
     return -1;
-    
+
   return sem_init(semId,n);
 }
-int sys_sem_destroy(int semId)
-{return 0;}
+
+int sys_sem_destroy(void)
+{
+  int semId;
+
+  if(argint(0,&semId) < 0)
+    return -1;
+
+  return sem_destroy(semId);
+}
 int sys_sem_wait(int semId)
-{return 0;}
+{
+  int semId;
+
+  if(argint(0,&semId) < 0)
+    return -1;
+
+  return sem_wait(semId);
+}
+
 int sys_sem_signal(int semId)
-{return 0;}
+{
+  int semId;
+
+  if(argint(0,&semId) < 0)
+    return -1;
+
+  return sem_signal(semId);
+}
 
 int
 sys_fork(void)
