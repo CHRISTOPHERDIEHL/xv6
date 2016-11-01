@@ -40,38 +40,44 @@ pinit(void)
 
 int sem_signal(int semId)
 {
-  acquire(semArray[semId].lock);
+  acquire(&semArray[semId].lock);
   semArray[semId]->value ++;
   //need to wake up sleeping procs;
-  release(semArray[semdId].lock);
+  release(&semArray[semdId].lock);
 
 }
 int sem_init(int semId,int n)
 {
 
-  acquire(semArray[semId].lock)
+  acquire(&semArray[semId].lock)
 
   if(semArray[semId].active == 1)
     return -1;
   semArray[semId]->value = n;
   semArray[semId]->active = 1;
 
-  release(semArray[semId].lock);
+  release(&semArray[semId].lock);
 
 }
 int sem_wait(int semId)
 {
-  acquire(semArray[semId].lock);
+  acquire(&semArray[semId].lock);
   if(semArray[semId]->value < 1) {
     //put it to sleep;
-    continue;
+    sleep(semId, &semId[semId].lock);
   } else {
     semArray[semId]->value --;
   }
-  release(semArray[semId].lock);
+  release(&semArray[semId].lock);
 }
-int sem_destroy(int semId){
-  acquire(semArray[semId].lock);
+int sem_destroy(int semId)
+{
+  acquire(&semArray[semId].lock);
+  if(semArray[semId]->active == 0)
+    return -1;
+  semArray[semId]->active = 0;
+  release(&semArray[semId].lock)
+
 }
 
 //PAGEBREAK: 32
