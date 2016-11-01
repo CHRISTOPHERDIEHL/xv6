@@ -11,7 +11,7 @@
 
 int sys_sem_init(void)
 {
-  int semid,n;
+  int semId,n;
 
   if(argint(0, &semId) < 0)
     return -1;
@@ -31,7 +31,7 @@ int sys_sem_destroy(void)
 
   return sem_destroy(semId);
 }
-int sys_sem_wait(int semId)
+int sys_sem_wait(void)
 {
   int semId;
 
@@ -41,7 +41,7 @@ int sys_sem_wait(int semId)
   return sem_wait(semId);
 }
 
-int sys_sem_signal(int semId)
+int sys_sem_signal(void)
 {
   int semId;
 
