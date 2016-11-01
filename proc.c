@@ -19,6 +19,9 @@ struct semaphore
   struct spinlock lock;
 };
 
+//create an array of semaphores
+struct semaphore semArray[32];
+
 static struct proc *initproc;
 
 int nextpid = 1;
@@ -31,6 +34,44 @@ void
 pinit(void)
 {
   initlock(&ptable.lock, "ptable");
+}
+
+
+
+int sem_signal(int semId)
+{
+  acquire(semArray[semId].lock);
+  semArray[semId]->value ++;
+  //need to wake up sleeping procs;
+  release(semArray[semdId].lock);
+
+}
+int sem_init(int semId,int n)
+{
+
+  acquire(semArray[semId].lock)
+
+  if(semArray[semId].active == 1)
+    return -1;
+  semArray[semId]->value = n;
+  semArray[semId]->active = 1;
+
+  release(semArray[semId].lock);
+
+}
+int sem_wait(int semId)
+{
+  acquire(semArray[semId].lock);
+  if(semArray[semId]->value < 1) {
+    //put it to sleep;
+    continue;
+  } else {
+    semArray[semId]->value --;
+  }
+  release(semArray[semId].lock);
+}
+int sem_destroy(int semId){
+  acquire(semArray[semId].lock);
 }
 
 //PAGEBREAK: 32
