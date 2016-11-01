@@ -48,9 +48,9 @@ int sem_signal(int semId)
     return -1;
   }
 
-  semArray[semId]->value ++;
-  wakeup(semId);
-  release(&semArray[semdId].lock);
+  semArray[semId].value ++;
+  wakeup(&semId);
+  release(&semArray[semId].lock);
   return 0;
 
 }
@@ -64,8 +64,8 @@ int sem_init(int semId,int n)
     return -1;
   }
 
-  semArray[semId]->value = n;
-  semArray[semId]->active = 1;
+  semArray[semId].value = n;
+  semArray[semId].active = 1;
 
   release(&semArray[semId].lock);
   return 0;
@@ -75,16 +75,16 @@ int sem_wait(int semId)
 {
   acquire(&semArray[semId].lock);
 
-  if(semArray[semId]->active == 0)
+  if(semArray[semId].active == 0)
   {
     release(&semArray[semId].lock);
     return -1;
   }
 
-  while(semArray[semId]->value < 1) {   //continues to put other programs back to sleep in case not their turn
+  while(semArray[semId].value < 1) {   //continues to put other programs back to sleep in case not their turn
     sleep(semId, &semId[semId].lock);  //put it to sleep, atomically releases lock, use semId as channel
   }
-  semArray[semId]->value --;
+  semArray[semId].value --;
 
   release(&semArray[semId].lock);
   return 0;
@@ -94,12 +94,12 @@ int sem_destroy(int semId)
 {
 
   acquire(&semArray[semId].lock);
-  if(semArray[semId]->active == 0)
+  if(semArray[semId].active == 0)
   {
     release(&semArray[semId].lock);
     return -1;
   }
-  semArray[semId]->active = 0;
+  semArray[semId].active = 0;
   release(&semArray[semId].lock);
   return 0;
 }
