@@ -82,7 +82,7 @@ int sem_wait(int semId)
   }
 
   while(semArray[semId].value < 1) {   //continues to put other programs back to sleep in case not their turn
-    sleep(semId, &semId[semId].lock);  //put it to sleep, atomically releases lock, use semId as channel
+    sleep(&semId, &semArray[semId].lock);  //put it to sleep, atomically releases lock, use semId as channel
   }
   semArray[semId].value --;
 
