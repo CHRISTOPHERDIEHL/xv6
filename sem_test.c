@@ -66,13 +66,18 @@ void child(void)
 	sleep(10);
 
 	for (i=0; i<TARGET_COUNT_PER_CHILD; i++) {
+		cprintf("Waiting\n");
 		sem_wait(SEMAPHORE_NUM);
-		
+		cprintf("done waiting\n");
+
 		counter = counter_get("counter");
 		counter++;
 		counter_set("counter", counter);
+		cprintf("About to signal\n");
 
 		sem_signal(SEMAPHORE_NUM);
+		cprintf("Signaled\n");
+
 	}
 
 	exit();
@@ -110,7 +115,7 @@ int main(int argc, char **argv)
 		if (pid == 0)
 			child();
 	}
-	
+
 	// Wait for all children
 	for (i=0; i<NUM_CHILDREN; i++) {
 		wait();
@@ -123,10 +128,10 @@ int main(int argc, char **argv)
 		printf(1, "TEST PASSED!\n");
 	else
 		printf(1, "TEST FAILED!\n");
-	
+
 	// Clean up semaphore
 	sem_destroy(SEMAPHORE_NUM);
-	
+
 	// Exit
 	exit();
 }
