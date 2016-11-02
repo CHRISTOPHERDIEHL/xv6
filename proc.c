@@ -41,14 +41,14 @@ pinit(void)
 int sem_signal(int semId)
 {
   acquire(&semArray[semId].lock);
-
   if(semArray[semId].active == 0)
   {
     release(&semArray[semId].lock);
     return -1;
   }
-
+  cprintf("value: %d",semArray[semId].value);
   semArray[semId].value ++;
+
   wakeup(&semId);
   release(&semArray[semId].lock);
   return 0;
