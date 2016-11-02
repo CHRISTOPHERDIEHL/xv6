@@ -66,17 +66,17 @@ void child(void)
 	sleep(10);
 
 	for (i=0; i<TARGET_COUNT_PER_CHILD; i++) {
-		cprintf("Waiting\n");
+		printf(1,"Waiting\n");
 		sem_wait(SEMAPHORE_NUM);
-		cprintf("done waiting\n");
+		printf(1,"done waiting\n");
 
 		counter = counter_get("counter");
 		counter++;
 		counter_set("counter", counter);
-		cprintf("About to signal\n");
+		printf(1,"About to signal\n");
 
 		sem_signal(SEMAPHORE_NUM);
-		cprintf("Signaled\n");
+		printf(1,"Signaled\n");
 
 	}
 
