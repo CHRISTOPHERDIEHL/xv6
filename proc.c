@@ -47,7 +47,6 @@ int sem_signal(int semId)
     return -1;
   }
   semArray[semId].value = semArray[semId].value +1;
-  cprintf("value: %d",semArray[semId].value);
 
   wakeup(&semArray[semId]);
   release(&semArray[semId].lock);
@@ -82,9 +81,7 @@ int sem_wait(int semId)
   }
 
   while(semArray[semId].value < 1) {   //continues to put other programs back to sleep in case not their turn
-    cprintf("semArray[semId].value: %d",semArray[semId].value);
     sleep(&semArray[semId], &semArray[semId].lock);  //put it to sleep, atomically releases lock, use semId as channel
-    cprintf
   }
   semArray[semId].value = semArray[semId].value - 1;
 
