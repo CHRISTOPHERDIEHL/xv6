@@ -75,7 +75,6 @@ void child(void)
 		sem_signal(SEMAPHORE_NUM);
 
 	}
-	printf(1,'exit')
 	exit();
 }
 
