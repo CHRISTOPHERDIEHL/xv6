@@ -70,9 +70,12 @@ void child(void)
 
 		counter = counter_get("counter");
 		counter++;
+		counter_set("counter", counter);
+
 		sem_signal(SEMAPHORE_NUM);
 
 	}
+	printf(1,'exit')
 	exit();
 }
 
