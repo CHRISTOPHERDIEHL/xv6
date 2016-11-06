@@ -7,6 +7,61 @@
 #include "mmu.h"
 #include "proc.h"
 
+//kenerl level threads
+int clone(void *(*func) (void *), void *arg, void *stack);
+int join(int pid, void **stack, void **retval);
+void texit(void *retval);
+
+int sys_clone(void)
+{
+  void * arg0,arg1,stack;
+  int temp;
+  if(argint(0, &temp) < 0)
+    return -1;
+  arg0 = (void * )temp;
+
+  if(argint(1, &temp) < 0)
+    return -1;
+  arg1 = (void * )temp;
+
+  if(argint(2, &temp) < 0)
+    return -1;
+  stack = (void * )temp;
+
+  return clone(arg0,arg1,stack);
+}
+
+int sys_texit(void)
+{
+  void *retval;
+  int temp;
+
+  if(argint(0,&temp) < 0)
+    return -1;
+  retval = (void*)temp;
+
+  return texit(retval);
+}
+
+int sys_join(void)
+{
+  void ** stack,retval;
+  int pid,temp;
+
+  if(argint(0,&pid) < 0)
+    return -1;
+
+  if(argint(1,&temp) < 0)
+    return -1;
+  stack = (void **)temp;
+
+  if(argint(1,&temp) < 0)
+    return -1;
+  retval = (void **)temp;
+
+  return join(pid,stack,retval);
+}
+
 //semaphores
 
 int sys_sem_init(void)
