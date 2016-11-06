@@ -36,7 +36,19 @@ pinit(void)
   initlock(&ptable.lock, "ptable");
 }
 
-
+//Kernel Level threads
+int clone(void *(*func) (void *), void *arg, void *stack)
+{
+  return -1;
+}
+int join(int pid, void **stack, void **retval)
+{
+  return -1;
+}
+void texit(void *retval)
+{
+  return -1;
+}
 
 int sem_signal(int semId)
 {
