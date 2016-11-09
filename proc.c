@@ -39,7 +39,41 @@ pinit(void)
 //Kernel Level threads
 int clone(void *(*func) (void *), void *arg, void *stack)
 {
-  return -1;
+  int i, pid;
+  struct proc *np;
+
+  // Allocate process.
+  if((np = allocproc()) == 0)
+    return -1;
+
+  // Copy process state from p.
+  np->kstack = stack;
+  np->state = UNUSED;
+  np->sz = proc->sz;
+  np->parent = proc;
+  *np->tf = *proc->tf;
+  np->pgdir = proc->pagedir;
+
+  //add arg to the stack
+  np->kstack = arg;
+
+  // Clear %eax so that fork returns 0 in the child.
+  //change eip to new function
+  //change esp to add parameter as per xv6 standard
+  np->tf->eax = 0;
+  np->tf->eip = func;
+  //np->tf->esp =  need to push ebp etc onto stack
+
+  safestrcpy(np->name, proc->name, sizeof(proc->name));
+
+  pid = np->pid;
+
+  // lock to force the compiler to emit the np->state write last.
+  acquire(&ptable.lock);
+  np->state = RUNNABLE;
+  release(&ptable.lock);
+
+  return pid;
 }
 int join(int pid, void **stack, void **retval)
 {
