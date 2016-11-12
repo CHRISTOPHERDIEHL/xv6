@@ -54,15 +54,30 @@ int clone(void *(*func) (void *), void *arg, void *stack)
   *np->tf = *proc->tf;
   np->pgdir = proc->pagedir;
 
-  //add arg to the stack
-  np->kstack = arg;
-
   // Clear %eax so that fork returns 0 in the child.
   //change eip to new function
-  //change esp to add parameter as per xv6 standard
+  //setup the ebp value
   np->tf->eax = 0;
-  np->tf->eip = func;
-  //np->tf->esp =  need to push ebp etc onto stack
+  np->tf->eip = (uint)func;
+  np->tf->ebp = p->tf->esp;
+
+  //setup stack
+  np->kstack = kstack;
+  //setup arg value
+  //goes on the assumption that the stack size passed in is a valid 4096
+  //thanks to little diagram found here: https://www.cs.bgu.ac.il/~os122/wiki.files/Operating%20Systems%20-%20assignment%202.pdf
+  //we know that arg at top of stack, then return val
+  int * myArg = np->kstack+PGSIZE -(sizeof(int*));
+  * myArg = (int) arg;
+  //setup return value;
+  //give return value FFFFFF so OS just kills the process
+  int * retVal = np->kstack+PGSIZE-(sizeof(int*)*2);
+  *retVal = 0xFFFFFFFF;
+
+  //setup esp
+  //need to set it to account for myArg and retVal
+  //can use PGSIZE since everything should be in one page
+  np->tf->esp = np->kstack +PGSIZE - (sizeof(int*)*2)
 
   safestrcpy(np->name, proc->name, sizeof(proc->name));
 
