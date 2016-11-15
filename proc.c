@@ -211,7 +211,6 @@ int texit(void *retval)
   proc->state = ZOMBIE;
   sched();
   panic("zombie exit");
-  return 1;
 }
 
 int sem_signal(int semId)

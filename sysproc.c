@@ -40,7 +40,9 @@ int sys_texit(void)
     return -1;
   retval = (void*)temp;
 
-  return texit(retval);
+  rtexit(retval);
+
+  return 0;
 }
 
 int sys_join(void)
