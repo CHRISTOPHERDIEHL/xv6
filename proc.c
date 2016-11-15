@@ -116,9 +116,8 @@ int clone(void *(*func) (void *), void *arg, void *stack)
   //thanks to little diagram found here: https://www.cs.bgu.ac.il/~os122/wiki.files/Operating%20Systems%20-%20assignment%202.pdf
   //we know that arg at top of stack, then return val
   cprintf("thread about to have args put in %d  %s\n", proc->pid,  proc->name);
-  np->tf->esp = (int)(stack+PGSIZE); //put esp to right spot on stack
-  *((uint*)(np->tf->esp)) = (uint)arg; //failing
-  cprintf("thread had  args put in %d  %s\n", proc->pid,  proc->name);
+  np->tf->esp = (uint)(stack+PGSIZE-4); //put esp to right spot on stack
+  *((int*)(np->tf->esp)) = (int)arg; 
   *((int*)(np->tf->esp)-4) = 0xFFFFFFFF;
   cprintf("thread had  2nd args put in %d  %s\n", proc->pid,  proc->name);
 
