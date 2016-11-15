@@ -92,11 +92,70 @@ int clone(void *(*func) (void *), void *arg, void *stack)
 }
 int join(int pid, void **stack, void **retval)
 {
+  struct proc *p;
+
+  acquire(&ptable.lock);
+  // Scan through table looking for process with pid = pid
+  //only 1 process with pid so at most only look through ptable once
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+    if(p->pid != pid)
+      continue;
+    else{
+      //sleep until the process your waiting on is finished
+      while(!p->killed) {
+        stack = p->kstack;
+        retVal = p->tf->eax;
+        sleep(proc, &ptable.lock);  //DOC: wait-sleep until child waiting on wakes me up
+      }
+      return 0; //ya we made it!
+    }
+  } //no process with pid exists
+    //never slept so need to release the lock
+
+  release(&ptable.lock);
   return -1;
+
+
 }
 void texit(void *retval)
 {
-  return -1;
+  struct proc *p;
+  int fd;
+
+  if(proc == initproc)
+    panic("init exiting");
+
+  // Close all open files.
+  for(fd = 0; fd < NOFILE; fd++){
+    if(proc->ofile[fd]){
+      fileclose(proc->ofile[fd]);
+      proc->ofile[fd] = 0;
+    }
+  }
+
+  begin_op();
+  iput(proc->cwd);
+  end_op();
+  proc->cwd = 0;
+
+  acquire(&ptable.lock);
+
+  // Parent might be sleeping in wait().
+  wakeup1(proc->parent);
+
+  // Pass abandoned children to init.
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+    if(p->parent == proc){
+      p->parent = initproc;
+      if(p->state == ZOMBIE)
+        wakeup1(initproc);
+    }
+  }
+
+  // Jump into the scheduler, never to return.
+  proc->state = ZOMBIE;
+  sched();
+  panic("zombie exit");
 }
 
 int sem_signal(int semId)
