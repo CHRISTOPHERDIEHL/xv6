@@ -90,6 +90,22 @@ int clone(void *(*func) (void *), void *arg, void *stack)
 
   return pid;
 }
+if(p->state == ZOMBIE){
+  // Found one.
+  pid = p->pid;
+  kfree(p->kstack);
+  p->kstack = 0;
+  freevm(p->pgdir);
+  p->state = UNUSED;
+  p->pid = 0;
+  p->parent = 0;
+  p->name[0] = 0;
+  p->killed = 0;
+  release(&ptable.lock);
+  return pid;
+}
+
+//I am going to pass the retval from the child proccess to the parent process throught the eax register
 int join(int pid, void **stack, void **retval)
 {
   struct proc *p;
@@ -102,21 +118,25 @@ int join(int pid, void **stack, void **retval)
       continue;
     else{
       //sleep until the process your waiting on is finished
-      while(!p->killed) {
+      while(p->state != ZOMBIE) {
         stack = p->kstack;
         retVal = p->tf->eax;
-        sleep(proc, &ptable.lock);  //DOC: wait-sleep until child waiting on wakes me up
-      }
+        sleep(proc, &ptable.lock);  //DOC: wait-sleep until child I'm waiting on wakes me up
+      } //made it out of the while loop. About to kill off the pid I'm waiting on
+      p->pid = 0;
+      p->parent = 0;
+      p->name[0] = 0;
+      p->killed = 0;
+      release(&ptable.lock);
       return 0; //ya we made it!
     }
   } //no process with pid exists
-    //never slept so need to release the lock
 
   release(&ptable.lock);
   return -1;
-
-
 }
+
+//retval gets passed to join process through the eax register
 void texit(void *retval)
 {
   struct proc *p;
@@ -151,8 +171,9 @@ void texit(void *retval)
         wakeup1(initproc);
     }
   }
-
   // Jump into the scheduler, never to return.
+  //setup return val for texit
+  proc->tf->eax = retval;
   proc->state = ZOMBIE;
   sched();
   panic("zombie exit");
