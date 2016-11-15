@@ -115,16 +115,17 @@ int clone(void *(*func) (void *), void *arg, void *stack)
   //goes on the assumption that the stack size passed in is a valid 4096
   //thanks to little diagram found here: https://www.cs.bgu.ac.il/~os122/wiki.files/Operating%20Systems%20-%20assignment%202.pdf
   //we know that arg at top of stack, then return val
-  int * myArg = (int)np->kstack+PGSIZE -(sizeof(int*));
+  int * myArg = (int*)np->kstack+PGSIZE -(sizeof(int*));
+  *myArg = *arg;
   //setup return value;
   //give return value FFFFFF so OS just kills the process
-  int * retVal = &(np->kstack+PGSIZE-(sizeof(int*)*2));
+  int * retVal = (int*)(np->kstack+PGSIZE-(sizeof(int*)*2));
   *retVal = 0xFFFFFFFF;
 
   //setup esp
   //need to set it to account for myArg and retVal
   //can use PGSIZE since everything should be in one page
-  np->tf->esp = np->kstack +PGSIZE - (sizeof(int*)*2);
+  np->tf->esp = (uint) (np->kstack +PGSIZE - (sizeof(int*)*2));
 
   safestrcpy(np->name, proc->name, sizeof(proc->name));
 
@@ -153,7 +154,7 @@ int join(int pid, void **stack, void **retval)
       //sleep until the process your waiting on is finished
       while(p->state != ZOMBIE) {
         stack = (void **)p->kstack;
-        retval = (uint *)p->tf->eax;
+        retval = (void **)p->tf->eax;
         sleep(proc, &ptable.lock);  //DOC: wait-sleep until child I'm waiting on wakes me up
       } //made it out of the while loop. About to kill off the pid I'm waiting on
       p->pid = 0;
