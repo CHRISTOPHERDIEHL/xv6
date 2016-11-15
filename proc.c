@@ -171,7 +171,7 @@ int join(int pid, void **stack, void **retval)
 }
 
 //retval gets passed to join process through the eax register
-int texit(void *retval)
+void texit(void *retval)
 {
   struct proc *p;
   int fd;
