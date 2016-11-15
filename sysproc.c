@@ -18,15 +18,15 @@ int sys_clone(void)
   int temp;
   if(argint(0, &temp) < 0)
     return -1;
-  arg0 = (void * )temp;
+  arg0 = (void *)temp;
 
   if(argint(1, &temp) < 0)
     return -1;
-  arg1 = (void * )temp;
+  arg1 = (void *)temp;
 
   if(argint(2, &temp) < 0)
     return -1;
-  stack = (void * )temp;
+  stack = (void *)temp;
 
   return clone(arg0,arg1,stack);
 }
@@ -55,7 +55,7 @@ int sys_join(void)
     return -1;
   stack = (void **)temp;
 
-  if(argint(1,&temp) < 0)
+  if(argint(2,&temp) < 0)
     return -1;
   retval = (void **)temp;
 
