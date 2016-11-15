@@ -420,6 +420,7 @@ exit(void)
       p->parent = initproc;
       if(p->state == ZOMBIE)
         wakeup1(initproc);
+      //should i do this or just kill(p->pid)?
     }
   }
 

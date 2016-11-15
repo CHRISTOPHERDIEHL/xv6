@@ -18,9 +18,9 @@ void *thread(void *arg)
 	sleep(10);
 	printf(1, "thread %d: started...\n", *(int*)arg);
 
-	for (i=0; i<TARGET_COUNT_PER_THREAD; i++) {
+	for (i=0; i<TARGET_COUNT_PER_THREAD; i++) {xf
 		sem_wait(SEMAPHORE_NUM);
-		
+
 		counter = g_counter;
 		sleep(0);
 		counter++;
@@ -31,6 +31,7 @@ void *thread(void *arg)
 	}
 
 	texit(arg);
+	return 0;
 }
 
 int main(int argc, char **argv)
@@ -85,18 +86,19 @@ int main(int argc, char **argv)
 
 	printf(1, "main: running with %d threads...\n", NUM_THREADS);
 
+	int pid[NUM_THREADS];
 	// Start all children
 	for (i=0; i<NUM_THREADS; i++) {
-		int pid = clone(thread, args[i], stacks[i]);
-		printf(1, "main: created thread with pid %d\n", pid);
+		pid[i] = clone(thread, args[i], stacks[i]);
+		printf(1, "main: created thread with pid %d\n", pid[i]);
 	}
-	
+
 	// Wait for all children
 	for (i=0; i<NUM_THREADS; i++) {
 		void *joinstack;
 		void* retval;
 		int r;
-		r = join(&joinstack, &retval);
+		r = join(pid[i], &joinstack, &retval);
 
 		if (r<0){
 			passed = 0;
@@ -123,7 +125,7 @@ int main(int argc, char **argv)
 		printf(1, "TEST PASSED!\n");
 	else
 		printf(1, "TEST FAILED!\n");
-	
+
 	// Clean up semaphore
 	sem_destroy(SEMAPHORE_NUM);
 
