@@ -107,7 +107,7 @@ extern int sys_sem_signal(void);
 //Kernel level threads
 extern int sys_clone(void);
 extern int sys_join(void);
-extern void sys_texit(void);
+extern int sys_texit(void);
 
 static int (*syscalls[])(void) = {
 [SYS_fork]    sys_fork,
