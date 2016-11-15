@@ -115,11 +115,10 @@ int clone(void *(*func) (void *), void *arg, void *stack)
   //goes on the assumption that the stack size passed in is a valid 4096
   //thanks to little diagram found here: https://www.cs.bgu.ac.il/~os122/wiki.files/Operating%20Systems%20-%20assignment%202.pdf
   //we know that arg at top of stack, then return val
-  int * myArg = np->kstack+PGSIZE -(sizeof(int*));
-  * myArg = (int) arg;
+  int * myArg = (int)np->kstack+PGSIZE -(sizeof(int*));
   //setup return value;
   //give return value FFFFFF so OS just kills the process
-  int * retVal = np->kstack+PGSIZE-(sizeof(int*)*2);
+  int * retVal = &(np->kstack+PGSIZE-(sizeof(int*)*2));
   *retVal = 0xFFFFFFFF;
 
   //setup esp
@@ -138,20 +137,6 @@ int clone(void *(*func) (void *), void *arg, void *stack)
 
   return pid;
 }
-if(p->state == ZOMBIE){
-  // Found one.
-  pid = p->pid;
-  kfree(p->kstack);
-  p->kstack = 0;
-  freevm(p->pgdir);
-  p->state = UNUSED;
-  p->pid = 0;
-  p->parent = 0;
-  p->name[0] = 0;
-  p->killed = 0;
-  release(&ptable.lock);
-  return pid;
-}
 
 //I am going to pass the retval from the child proccess to the parent process throught the eax register
 int join(int pid, void **stack, void **retval)
@@ -167,8 +152,8 @@ int join(int pid, void **stack, void **retval)
     else{
       //sleep until the process your waiting on is finished
       while(p->state != ZOMBIE) {
-        stack = p->kstack;
-        retval = p->tf->eax;
+        stack = (void **)p->kstack;
+        retval = (uint *)p->tf->eax;
         sleep(proc, &ptable.lock);  //DOC: wait-sleep until child I'm waiting on wakes me up
       } //made it out of the while loop. About to kill off the pid I'm waiting on
       p->pid = 0;
