@@ -18,7 +18,7 @@ void *thread(void *arg)
 	sleep(10);
 	printf(1, "thread %d: started...\n", *(int*)arg);
 
-	for (i=0; i<TARGET_COUNT_PER_THREAD; i++) {xf
+	for (i=0; i<TARGET_COUNT_PER_THREAD; i++) {
 		sem_wait(SEMAPHORE_NUM);
 
 		counter = g_counter;
