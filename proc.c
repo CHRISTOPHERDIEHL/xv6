@@ -116,7 +116,7 @@ int clone(void *(*func) (void *), void *arg, void *stack)
   //thanks to little diagram found here: https://www.cs.bgu.ac.il/~os122/wiki.files/Operating%20Systems%20-%20assignment%202.pdf
   //we know that arg at top of stack, then return val
   int * myArg = (int*)np->kstack+PGSIZE -(sizeof(int*));
-  *myArg = (int *) arg;
+  *myArg = * (int *) arg;
   //setup return value;
   //give return value FFFFFF so OS just kills the process
   int * retVal = (int*)(np->kstack+PGSIZE-(sizeof(int*)*2));
@@ -171,7 +171,7 @@ int join(int pid, void **stack, void **retval)
 }
 
 //retval gets passed to join process through the eax register
-void texit(void *retval)
+int texit(void *retval)
 {
   struct proc *p;
   int fd;
