@@ -40,7 +40,7 @@ int sys_texit(void)
     return -1;
   retval = (void*)temp;
 
-  rtexit(retval);
+  texit(retval);
 
   return 0;
 }
