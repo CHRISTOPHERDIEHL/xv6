@@ -36,10 +36,58 @@ pinit(void)
   initlock(&ptable.lock, "ptable");
 }
 
+
+//PAGEBREAK: 32
+// Look in the process table for an UNUSED proc.
+// If found, change state to EMBRYO and initialize
+// state required to run in the kernel.
+// Otherwise return 0.
+static struct proc*
+allocproc(void)
+{
+  struct proc *p;
+  char *sp;
+
+  acquire(&ptable.lock);
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)
+    if(p->state == UNUSED)
+      goto found;
+  release(&ptable.lock);
+  return 0;
+
+found:
+  p->state = EMBRYO;
+  p->pid = nextpid++;
+  release(&ptable.lock);
+
+  // Allocate kernel stack.
+  if((p->kstack = kalloc()) == 0){
+    p->state = UNUSED;
+    return 0;
+  }
+  sp = p->kstack + KSTACKSIZE;
+
+  // Leave room for trap frame.
+  sp -= sizeof *p->tf;
+  p->tf = (struct trapframe*)sp;
+
+  // Set up new context to start executing at forkret,
+  // which returns to trapret.
+  sp -= 4;
+  *(uint*)sp = (uint)trapret;
+
+  sp -= sizeof *p->context;
+  p->context = (struct context*)sp;
+  memset(p->context, 0, sizeof *p->context);
+  p->context->eip = (uint)forkret;
+
+  return p;
+}
+
 //Kernel Level threads
 int clone(void *(*func) (void *), void *arg, void *stack)
 {
-  int i, pid;
+  int pid;
   struct proc *np;
 
   // Allocate process.
@@ -52,17 +100,17 @@ int clone(void *(*func) (void *), void *arg, void *stack)
   np->sz = proc->sz;
   np->parent = proc;
   *np->tf = *proc->tf;
-  np->pgdir = proc->pagedir;
+  np->pgdir = proc->pgdir;
 
   // Clear %eax so that fork returns 0 in the child.
   //change eip to new function
   //setup the ebp value
   np->tf->eax = 0;
   np->tf->eip = (uint)func;
-  np->tf->ebp = p->tf->esp;
+  np->tf->ebp = proc->tf->esp;
 
   //setup stack
-  np->kstack = kstack;
+  np->kstack = stack;
   //setup arg value
   //goes on the assumption that the stack size passed in is a valid 4096
   //thanks to little diagram found here: https://www.cs.bgu.ac.il/~os122/wiki.files/Operating%20Systems%20-%20assignment%202.pdf
@@ -77,7 +125,7 @@ int clone(void *(*func) (void *), void *arg, void *stack)
   //setup esp
   //need to set it to account for myArg and retVal
   //can use PGSIZE since everything should be in one page
-  np->tf->esp = np->kstack +PGSIZE - (sizeof(int*)*2)
+  np->tf->esp = np->kstack +PGSIZE - (sizeof(int*)*2);
 
   safestrcpy(np->name, proc->name, sizeof(proc->name));
 
@@ -120,7 +168,7 @@ int join(int pid, void **stack, void **retval)
       //sleep until the process your waiting on is finished
       while(p->state != ZOMBIE) {
         stack = p->kstack;
-        retVal = p->tf->eax;
+        retval = p->tf->eax;
         sleep(proc, &ptable.lock);  //DOC: wait-sleep until child I'm waiting on wakes me up
       } //made it out of the while loop. About to kill off the pid I'm waiting on
       p->pid = 0;
@@ -173,7 +221,7 @@ void texit(void *retval)
   }
   // Jump into the scheduler, never to return.
   //setup return val for texit
-  proc->tf->eax = retval;
+  proc->tf->eax = (uint)retval;
   proc->state = ZOMBIE;
   sched();
   panic("zombie exit");
@@ -244,52 +292,6 @@ int sem_destroy(int semId)
   return 0;
 }
 
-//PAGEBREAK: 32
-// Look in the process table for an UNUSED proc.
-// If found, change state to EMBRYO and initialize
-// state required to run in the kernel.
-// Otherwise return 0.
-static struct proc*
-allocproc(void)
-{
-  struct proc *p;
-  char *sp;
-
-  acquire(&ptable.lock);
-  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)
-    if(p->state == UNUSED)
-      goto found;
-  release(&ptable.lock);
-  return 0;
-
-found:
-  p->state = EMBRYO;
-  p->pid = nextpid++;
-  release(&ptable.lock);
-
-  // Allocate kernel stack.
-  if((p->kstack = kalloc()) == 0){
-    p->state = UNUSED;
-    return 0;
-  }
-  sp = p->kstack + KSTACKSIZE;
-
-  // Leave room for trap frame.
-  sp -= sizeof *p->tf;
-  p->tf = (struct trapframe*)sp;
-
-  // Set up new context to start executing at forkret,
-  // which returns to trapret.
-  sp -= 4;
-  *(uint*)sp = (uint)trapret;
-
-  sp -= sizeof *p->context;
-  p->context = (struct context*)sp;
-  memset(p->context, 0, sizeof *p->context);
-  p->context->eip = (uint)forkret;
-
-  return p;
-}
 
 //PAGEBREAK: 32
 // Set up first user process.
