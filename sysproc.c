@@ -14,7 +14,7 @@ void texit(void *retval);
 
 int sys_clone(void)
 {
-  void * arg0,arg1,stack;
+  void * arg0, *arg1,*stack;
   int temp;
   if(argint(0, &temp) < 0)
     return -1;
@@ -45,7 +45,7 @@ int sys_texit(void)
 
 int sys_join(void)
 {
-  void ** stack,retval;
+  void ** stack,**retval;
   int pid,temp;
 
   if(argint(0,&pid) < 0)
