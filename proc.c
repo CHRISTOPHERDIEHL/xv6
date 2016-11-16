@@ -87,7 +87,7 @@ found:
 //Kernel Level threads
 int clone(void *(*func) (void *), void *arg, void *stack)
 {
-  int pid;
+  int i,pid;
   struct proc *np;
 
   // Allocate process.
@@ -106,8 +106,7 @@ int clone(void *(*func) (void *), void *arg, void *stack)
   //change eip to new function
   //setup the ebp value
   np->tf->eax = 0;
-  np->tf->eip = (uint)func;
-  np->tf->ebp = proc->tf->esp;
+  np->tf->eip = (int)func;
 
   //setup stack
   np->kstack = stack;
@@ -115,14 +114,10 @@ int clone(void *(*func) (void *), void *arg, void *stack)
   //goes on the assumption that the stack size passed in is a valid 4096
   //thanks to little diagram found here: https://www.cs.bgu.ac.il/~os122/wiki.files/Operating%20Systems%20-%20assignment%202.pdf
   //we know that arg at top of stack, then return val
-  cprintf("thread about to have args put in %d  %s\n", proc->pid,  proc->name);
   np->tf->esp = (uint)(stack+PGSIZE-4); //put esp to right spot on stack
-  *((int*)(np->tf->esp)) = (int)arg; 
-  *((int*)(np->tf->esp)-4) = 0xFFFFFFFF;
-  cprintf("thread had  2nd args put in %d  %s\n", proc->pid,  proc->name);
-
+  *((uint*)(np->tf->esp)) = (uint)arg; //arg
+  *((uint*)(np->tf->esp)-4) = 0xFFFFFFFF; //return to nowhere
   np->tf->esp =(np->tf->esp) -4;
-
   //setup return value;
   //give return value FFFFFF so OS just kills the process
   //setup esp
@@ -130,13 +125,18 @@ int clone(void *(*func) (void *), void *arg, void *stack)
   //can use PGSIZE since everything should be in one page
   safestrcpy(np->name, proc->name, sizeof(proc->name));
 
+  for(i = 0; i < NOFILE; i++)
+    if(proc->ofile[i])
+      np->ofile[i] = filedup(proc->ofile[i]);
+  np->cwd = idup(proc->cwd);
+
   pid = np->pid;
 
   // lock to force the compiler to emit the np->state write last.
   acquire(&ptable.lock);
   np->state = RUNNABLE;
   release(&ptable.lock);
-
+  cprintf("eip: %d, esp: %d\n",np->tf->eip,np->tf->esp);
   return pid;
 }
 
@@ -155,7 +155,8 @@ int join(int pid, void **stack, void **retval)
       //sleep until the process your waiting on is finished
       while(p->state != ZOMBIE) {
         stack = (void **)p->kstack;
-        retval = (void **)p->tf->eax;
+        uint temp_ret = *(uint *)p->tf->esp;
+        retval = (void **)temp_ret;
         sleep(proc, &ptable.lock);  //DOC: wait-sleep until child I'm waiting on wakes me up
       } //made it out of the while loop. About to kill off the pid I'm waiting on
       p->pid = 0;
@@ -174,9 +175,9 @@ int join(int pid, void **stack, void **retval)
 //retval gets passed to join process through the eax register
 void texit(void *retval)
 {
+  cprintf("doing stuff\n");
   struct proc *p;
   int fd;
-
   if(proc == initproc)
     panic("init exiting");
 
@@ -194,7 +195,7 @@ void texit(void *retval)
   proc->cwd = 0;
 
   acquire(&ptable.lock);
-
+  cprintf("doing stuff\n");
   // Parent might be sleeping in wait().
   wakeup1(proc->parent);
 
@@ -208,7 +209,10 @@ void texit(void *retval)
   }
   // Jump into the scheduler, never to return.
   //setup return val for texit
-  proc->tf->eax = (uint)retval;
+  //put retval on stack
+  cprintf("doing stuff\n");
+  *(uint *)proc->tf->esp =(uint)retval;
+
   proc->state = ZOMBIE;
   sched();
   panic("zombie exit");

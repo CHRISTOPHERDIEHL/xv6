@@ -7,10 +7,7 @@
 #include "mmu.h"
 #include "proc.h"
 
-//kenerl level threads
-int clone(void *(*func) (void *), void *arg, void *stack);
-int join(int pid, void **stack, void **retval);
-void texit(void *retval);
+
 
 int sys_clone(void)
 {
@@ -33,6 +30,8 @@ int sys_clone(void)
 
 int sys_texit(void)
 {
+  cprintf("made it to sys_texit");
+  
   void *retval;
   int temp;
 
