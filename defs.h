@@ -119,6 +119,18 @@ int             wait(void);
 void            wakeup(void*);
 void            yield(void);
 
+//semaphores
+int sem_init(int semId, int n);
+int sem_destroy(int semId);
+int sem_wait(int semId);
+int sem_signal(int semId);
+
+//kernel level threads
+int clone(void *(*func) (void *), void *arg, void *stack);
+int join(int pid, void **stack, void **retval);
+void texit(void *retval);
+
+
 // swtch.S
 void            swtch(struct context**, struct context*);
 
@@ -148,16 +160,7 @@ int             fetchint(uint, int*);
 int             fetchstr(uint, char**);
 void            syscall(void);
 
-//semaphores
-int sem_init(int semId, int n);
-int sem_destroy(int semId);
-int sem_wait(int semId);
-int sem_signal(int semId);
 
-//kernel level threads
-int clone(void *(*func) (void *), void *arg, void *stack);
-int join(int pid, void **stack, void **retval);
-void texit(void *retval);
 
 // timer.c
 void            timerinit(void);

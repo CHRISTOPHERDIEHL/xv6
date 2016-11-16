@@ -95,28 +95,33 @@ int clone(void *(*func) (void *), void *arg, void *stack)
     return -1;
 
   // Copy process state from p.
-  np->kstack = stack;
   np->state = UNUSED;
   np->sz = proc->sz;
   np->parent = proc;
   *np->tf = *proc->tf;
   np->pgdir = proc->pgdir;
-
   // Clear %eax so that fork returns 0 in the child.
   //change eip to new function
-  //setup the ebp value
   np->tf->eax = 0;
   np->tf->eip = (int)func;
 
   //setup stack
-  np->kstack = stack;
+  np->kstack = (int)stack;
+
+
+  //don't know what it does but in fork and looks important
+  for(i = 0; i < NOFILE; i++)
+    if(proc->ofile[i])
+      np->ofile[i] = filedup(proc->ofile[i]);
+  np->cwd = idup(proc->cwd);
+
   //setup arg value
   //goes on the assumption that the stack size passed in is a valid 4096
   //thanks to little diagram found here: https://www.cs.bgu.ac.il/~os122/wiki.files/Operating%20Systems%20-%20assignment%202.pdf
   //we know that arg at top of stack, then return val
-  np->tf->esp = (uint)(stack+PGSIZE-4); //put esp to right spot on stack
-  *((uint*)(np->tf->esp)) = (uint)arg; //arg
-  *((uint*)(np->tf->esp)-4) = 0xFFFFFFFF; //return to nowhere
+  np->tf->esp = (int)(stack+PGSIZE-4); //put esp to right spot on stack
+  *((int*)(np->tf->esp)) = (int)arg; //arg
+  *((int*)(np->tf->esp)-4) = 0xFFFFFFFF; //return to nowhere
   np->tf->esp =(np->tf->esp) -4;
   //setup return value;
   //give return value FFFFFF so OS just kills the process
@@ -125,18 +130,13 @@ int clone(void *(*func) (void *), void *arg, void *stack)
   //can use PGSIZE since everything should be in one page
   safestrcpy(np->name, proc->name, sizeof(proc->name));
 
-  for(i = 0; i < NOFILE; i++)
-    if(proc->ofile[i])
-      np->ofile[i] = filedup(proc->ofile[i]);
-  np->cwd = idup(proc->cwd);
-
   pid = np->pid;
 
   // lock to force the compiler to emit the np->state write last.
   acquire(&ptable.lock);
   np->state = RUNNABLE;
   release(&ptable.lock);
-  cprintf("eip: %d, esp: %d\n",np->tf->eip,np->tf->esp);
+
   return pid;
 }
 
