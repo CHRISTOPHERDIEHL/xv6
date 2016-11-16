@@ -119,9 +119,9 @@ int clone(void *(*func) (void *), void *arg, void *stack)
   //goes on the assumption that the stack size passed in is a valid 4096
   //thanks to little diagram found here: https://www.cs.bgu.ac.il/~os122/wiki.files/Operating%20Systems%20-%20assignment%202.pdf
   //we know that arg at top of stack, then return val
-  np->tf->esp = (int)(stack+PGSIZE-4); //put esp to right spot on stack
-  *((int*)(np->tf->esp)) = (int)arg; //arg
-  *((int*)(np->tf->esp)-4) = 0xFFFFFFFF; //return to nowhere
+  np->tf->esp = (uint)(stack+PGSIZE-4); //put esp to right spot on stack
+  *((uint*)(np->tf->esp)) = (uint)arg; //arg
+  *((uint*)(np->tf->esp)-4) = 0xFFFFFFFF; //return to nowhere
   np->tf->esp =(np->tf->esp) -4;
   //setup return value;
   //give return value FFFFFF so OS just kills the process
