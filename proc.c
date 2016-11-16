@@ -106,7 +106,7 @@ int clone(void *(*func) (void *), void *arg, void *stack)
   np->tf->eip = (int)func;
 
   //setup stack
-  np->kstack = (int)stack;
+  np->kstack = stack;
 
 
   //don't know what it does but in fork and looks important
