@@ -30,7 +30,6 @@ int sys_clone(void)
 
 int sys_texit(void)
 {
-  cprintf("made it to sys_texit");
   
   void *retval;
   int temp;

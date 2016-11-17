@@ -12,12 +12,11 @@ uint g_counter;
 
 void *thread(void *arg)
 {
-	printf(1,"thread started\n");
 	printf(1, "thread %d: started...\n", *(int*)arg);
 
 	int i;
 	int counter;
-
+	*(int * )arg = 200;
 	sleep(10);
 
 	for (i=0; i<TARGET_COUNT_PER_THREAD; i++) {
@@ -31,9 +30,7 @@ void *thread(void *arg)
 
 		sem_signal(SEMAPHORE_NUM);
 	}
-	printf(1,"exiting\n");
 	texit(arg);
-	printf(1,"The thread has exited captain");
 	return 0;
 }
 
@@ -92,7 +89,6 @@ int main(int argc, char **argv)
 	int pid[NUM_THREADS];
 	// Start all children
 	for (i=0; i<NUM_THREADS; i++) {
-		printf(1,"thread: %d, arg: %d, stack: %d",(int)thread,*(int*)args[i],(int)stacks[i]);
 		pid[i] = clone(thread, args[i], stacks[i]);
 		printf(1, "main: created thread with pid %d\n", pid[i]);
 	}
@@ -110,7 +106,7 @@ int main(int argc, char **argv)
 			passed = 0;
 		}
 		if(*(int*)retval != i){
-			printf(1,"retval =?%d\n",retval);
+			printf(1,"\n[-]retval =%d no cast: %d i: %d\n",*(int*)retval,(int)retval,i);
 
 			passed = 0;
 		}

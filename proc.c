@@ -120,7 +120,7 @@ int clone(void *(*func) (void *), void *arg, void *stack)
   //thanks to little diagram found here: https://www.cs.bgu.ac.il/~os122/wiki.files/Operating%20Systems%20-%20assignment%202.pdf
   //we know that arg at top of stack, then return val
   np->tf->esp = (int)(stack+PGSIZE-4); //put esp to right spot on stack
-  *((int*)(np->tf->esp)) = *(int*)arg; //arg
+  *((int*)(np->tf->esp)) = (int)arg; //arg
   *((int*)(np->tf->esp)-4) = 0xFFFFFFFF; //return to nowhere
   np->tf->esp =(np->tf->esp) -4;
   //setup return value;
@@ -154,11 +154,11 @@ int join(int pid, void **stack, void **retval)
     else{
       //sleep until the process your waiting on is finished
       while(p->state != ZOMBIE) {
-        stack = (void **)p->kstack;
-        uint temp_ret = *(uint *)p->tf->esp;
-        retval = (void **)temp_ret;
         sleep(proc, &ptable.lock);  //DOC: wait-sleep until child I'm waiting on wakes me up
       } //made it out of the while loop. About to kill off the pid I'm waiting on
+
+      stack = (void **)p->stack;
+      retval = (void **)(*(int*)p->tf->esp+4);
       p->pid = 0;
       p->parent = 0;
       p->name[0] = 0;
@@ -175,7 +175,6 @@ int join(int pid, void **stack, void **retval)
 //retval gets passed to join process through the eax register
 void texit(void *retval)
 {
-  cprintf("doing stuff\n");
   struct proc *p;
   int fd;
   if(proc == initproc)
@@ -195,7 +194,6 @@ void texit(void *retval)
   proc->cwd = 0;
 
   acquire(&ptable.lock);
-  cprintf("doing stuff\n");
   // Parent might be sleeping in wait().
   wakeup1(proc->parent);
 
@@ -210,9 +208,9 @@ void texit(void *retval)
   // Jump into the scheduler, never to return.
   //setup return val for texit
   //put retval on stack
-  cprintf("doing stuff\n");
-  *(uint *)proc->tf->esp =(uint)retval;
-
+  cprintf("retval: %d\n",*(int*)retval);
+  *(int *)(proc->tf->esp-4) =(int)retval;
+  cprintf("esp: %d no cast %d\n",*(int *)proc->tf->esp,proc->tf->esp);
   proc->state = ZOMBIE;
   sched();
   panic("zombie exit");
