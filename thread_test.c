@@ -102,13 +102,16 @@ int main(int argc, char **argv)
 		void *joinstack;
 		void* retval;
 		int r;
-		printf(1,"join?\n");
+
 		r = join(pid[i], &joinstack, &retval);
 
 		if (r<0){
+			printf(1,"r <0?\n");
 			passed = 0;
 		}
 		if(*(int*)retval != i){
+			printf(1,"retval =?%d\n",retval);
+
 			passed = 0;
 		}
 		for (j=0; j<NUM_THREADS; j++) {
