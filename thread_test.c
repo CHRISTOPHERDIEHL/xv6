@@ -12,6 +12,7 @@ uint g_counter;
 
 void *thread(void *arg)
 {
+	printf(1,"thread started\n");
 	printf(1, "thread %d: started...\n", *(int*)arg);
 
 	int i;
@@ -91,7 +92,7 @@ int main(int argc, char **argv)
 	int pid[NUM_THREADS];
 	// Start all children
 	for (i=0; i<NUM_THREADS; i++) {
-		printf(1,"thread: %d\n",(int)thread);
+		printf(1,"thread: %d, arg: %d, stack: %d",(int)thread,*(int*)args[i],(int)stacks[i]);
 		pid[i] = clone(thread, args[i], stacks[i]);
 		printf(1, "main: created thread with pid %d\n", pid[i]);
 	}
