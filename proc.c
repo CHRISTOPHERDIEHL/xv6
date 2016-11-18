@@ -158,8 +158,7 @@ int join(int pid, void **stack, void *retval)
       } //made it out of the while loop. About to kill off the pid I'm waiting on
 
       stack = (void **)p->stack;
-      *(int*)retval = *(int*)p->tf->esp;
-      cprintf("join retval cast: %d\n",*(int*)retval);
+      *(int*)retval = p->tf->esp;
       p->pid = 0;
       p->parent = 0;
       p->name[0] = 0;
@@ -209,7 +208,6 @@ void texit(void *retval)
   // Jump into the scheduler, never to return.
   //setup return val for texit
   //put retval on stack
-  cprintf("retval: %d\n",*(int*)retval);
   *(int *)(proc->tf->esp) =*(int*)retval;
   proc->state = ZOMBIE;
   sched();
