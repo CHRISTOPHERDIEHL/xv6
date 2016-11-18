@@ -16,7 +16,6 @@ void *thread(void *arg)
 
 	int i;
 	int counter;
-	*(int * )arg = 200;
 	sleep(10);
 
 	for (i=0; i<TARGET_COUNT_PER_THREAD; i++) {

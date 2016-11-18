@@ -127,7 +127,7 @@ int sem_signal(int semId);
 
 //kernel level threads
 int clone(void *(*func) (void *), void *arg, void *stack);
-int join(int pid, void **stack, void **retval);
+int join(int pid, void **stack, void *retval);
 void texit(void *retval);
 
 

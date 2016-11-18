@@ -141,7 +141,7 @@ int clone(void *(*func) (void *), void *arg, void *stack)
 }
 
 //I am going to pass the retval from the child proccess to the parent process throught the eax register
-int join(int pid, void **stack, void **retval)
+int join(int pid, void **stack, void *retval)
 {
   struct proc *p;
 
@@ -158,7 +158,8 @@ int join(int pid, void **stack, void **retval)
       } //made it out of the while loop. About to kill off the pid I'm waiting on
 
       stack = (void **)p->stack;
-      retval = (void **)(*(int*)p->tf->esp+4);
+      *(int*)retval = *(int*)p->tf->esp;
+      cprintf("join retval cast: %d\n",*(int*)retval);
       p->pid = 0;
       p->parent = 0;
       p->name[0] = 0;
@@ -209,8 +210,7 @@ void texit(void *retval)
   //setup return val for texit
   //put retval on stack
   cprintf("retval: %d\n",*(int*)retval);
-  *(int *)(proc->tf->esp-4) =(int)retval;
-  cprintf("esp: %d no cast %d\n",*(int *)proc->tf->esp,proc->tf->esp);
+  *(int *)(proc->tf->esp) =*(int*)retval;
   proc->state = ZOMBIE;
   sched();
   panic("zombie exit");
